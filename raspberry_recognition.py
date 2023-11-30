@@ -5,30 +5,33 @@ import face_recognition
 from datetime import datetime
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-import time
+from time import perf_counter
+from concurrent.futures import ThreadPoolExecutor
 
 path = 'imgs'
 
 images = []
 class_names = []
 staff_list = os.listdir(path)
+
 for cl in staff_list:
     curImg = cv2.imread(f'{path}/{cl}')
     images.append(curImg)
     class_names.append(os.path.splitext(cl)[0])
 
 
-def find_encodings(images):
-    encoded_list = []
-    for img in images:
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        encoded_face = face_recognition.face_encodings(img)[0]
-        encoded_list.append(encoded_face)
-    return encoded_list
+def find_encodings(image):
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    encoded_face = face_recognition.face_encodings(img)[0]
+    return encoded_face
 
+start = perf_counter()
 
-encoded_face_train = find_encodings(images)
+with ThreadPoolExecutor() as executor:
+    encoded_face_train = list(executor.map(find_encodings, images))
 
+finish = perf_counter()
+print(f"RES:{finish-start}")
 
 def mark_attendance(name):
     with open('Attendance.csv', 'r+') as f:
