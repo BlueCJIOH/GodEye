@@ -5,18 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3a3d461b-d109-4c01-925a-ff9b3c609580" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/API/godeye/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/godeye/core/base_enums.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/godeye/core/enums.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/godeye/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/godeye/entrypoint.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/godeye/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/GodEye.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GodEye.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/raspberry_recognition.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/godeye/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/godeye/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/godeye/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/godeye/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +76,7 @@
       <workItem from="1701935844350" duration="310000" />
       <workItem from="1701936337223" duration="7315000" />
       <workItem from="1702024383450" duration="549000" />
-      <workItem from="1702122585797" duration="789000" />
+      <workItem from="1702122585797" duration="6790000" />
     </task>
     <servers />
   </component>
