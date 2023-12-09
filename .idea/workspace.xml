@@ -4,18 +4,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2045d0b1-c4c1-4a2a-a0ec-9ccf3b522758" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/raspberry_recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/raspberry_recognition.py" afterDir="false" />
+    <list default="true" id="3a3d461b-d109-4c01-925a-ff9b3c609580" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/API/godeye/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/API/godeye/core/base_enums.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/API/godeye/core/enums.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/API/godeye/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/API/godeye/entrypoint.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/API/godeye/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/GodEye.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GodEye.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/raspberry_recognition.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -23,7 +41,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="2YZkaOtlfibz7gFxZardbZfh1uX" />
+  <component name="ProjectId" id="2YwlhNxL6P07YsUU0XYssKTL67i" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -38,29 +56,34 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\WORK\GodEye" />
+      <recent name="C:\WORK\GodEye\AI\src" />
+      <recent name="C:\WORK\GodEye\AI" />
+      <recent name="C:\WORK\GodEye\API" />
+      <recent name="C:\WORK\GodEye\core" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="2045d0b1-c4c1-4a2a-a0ec-9ccf3b522758" name="Changes" comment="" />
-      <created>1700740551870</created>
+      <changelist id="3a3d461b-d109-4c01-925a-ff9b3c609580" name="Changes" comment="" />
+      <created>1701444647397</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1700740551870</updated>
-      <workItem from="1700740553313" duration="9037000" />
-      <workItem from="1700823133940" duration="3543000" />
-      <workItem from="1701106123034" duration="26503000" />
-      <workItem from="1701167578551" duration="10924000" />
-      <workItem from="1701269890461" duration="92000" />
-      <workItem from="1701343952286" duration="7711000" />
+      <updated>1701444647397</updated>
+      <workItem from="1701444650206" duration="5894000" />
+      <workItem from="1701602643514" duration="5069000" />
+      <workItem from="1701682356958" duration="76000" />
+      <workItem from="1701778859309" duration="5888000" />
+      <workItem from="1701935844350" duration="310000" />
+      <workItem from="1701936337223" duration="7315000" />
+      <workItem from="1702024383450" duration="549000" />
+      <workItem from="1702122585797" duration="789000" />
     </task>
     <servers />
   </component>

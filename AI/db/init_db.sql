@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS Employee (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    img_path VARCHAR(255),
+    encoded_img BYTEA
+);
+
+CREATE TABLE IF NOT EXISTS Log (
+    id SERIAL PRIMARY KEY,
+    employee_id INTEGER REFERENCES Employee(id) DEFAULT NULL,
+    last_seen TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    status BIT(1) NOT NULL
+);
