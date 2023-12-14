@@ -28,6 +28,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "rest_framework",
     "drf_spectacular",
+    "django_filters",
 ]
 
 LOCAL_APPS = [
