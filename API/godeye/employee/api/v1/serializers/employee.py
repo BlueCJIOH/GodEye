@@ -15,3 +15,7 @@ class EmployeeSerializer(ModelSerializer):
 
     def get_encoded_img(self, obj):
         return pickle.loads(obj.encoded_img)
+
+
+class EmployeeFilterSerializer(serializers.Serializer):
+    keyword = serializers.CharField()
