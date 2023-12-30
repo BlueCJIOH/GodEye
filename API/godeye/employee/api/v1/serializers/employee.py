@@ -11,7 +11,7 @@ class EmployeeSerializer(ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = '__all__'
+        fields = "__all__"
 
     def get_encoded_img(self, obj):
         return pickle.loads(obj.encoded_img)
@@ -19,3 +19,9 @@ class EmployeeSerializer(ModelSerializer):
 
 class EmployeeFilterSerializer(serializers.Serializer):
     keyword = serializers.CharField()
+
+
+class EmployeeStatsSerializer(serializers.Serializer):
+    total_visits = serializers.IntegerField()
+    first_seen = serializers.DateTimeField()
+    last_seen = serializers.DateTimeField()

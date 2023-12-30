@@ -9,4 +9,4 @@ class Log(models.Model):
     status = models.BooleanField(null=True)
 
     class Meta:
-        db_table = 'log'
+        db_table = "log"
