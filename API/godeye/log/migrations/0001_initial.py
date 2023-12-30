@@ -9,20 +9,36 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('employee', '0001_initial'),
+        ("employee", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Log',
+            name="Log",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('last_seen', models.DateTimeField(blank=True, null=True)),
-                ('status', models.BooleanField(null=True)),
-                ('employee', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='employee.employee')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("last_seen", models.DateTimeField(blank=True, null=True)),
+                ("status", models.BooleanField(null=True)),
+                (
+                    "employee",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="employee.employee",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'log',
+                "db_table": "log",
             },
         ),
     ]

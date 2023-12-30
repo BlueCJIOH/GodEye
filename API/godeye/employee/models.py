@@ -8,7 +8,7 @@ class Employee(models.Model):
     encoded_img = models.BinaryField(blank=True, null=True)
 
     class Meta:
-        db_table = 'employee'
+        db_table = "employee"
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f"{self.first_name} {self.last_name}"

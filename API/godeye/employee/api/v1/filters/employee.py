@@ -6,12 +6,14 @@ from employee.models import Employee
 
 
 class EmployeeFilter(filters.FilterSet):
-    keyword = filters.CharFilter(method='search_employee')
+    keyword = filters.CharFilter(method="search_employee")
 
     class Meta:
         model = Employee
-        fields = ('keyword',)
+        fields = ("keyword",)
 
     def search_employee(self, queryset, name, value):
-        queryset = queryset.annotate(fullname=Concat('first_name', Value(' '), 'last_name'))
+        queryset = queryset.annotate(
+            fullname=Concat("first_name", Value(" "), "last_name")
+        )
         return queryset.filter(fullname__icontains=value)
