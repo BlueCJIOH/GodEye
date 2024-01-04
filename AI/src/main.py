@@ -11,8 +11,9 @@ import pickle
 import psycopg2.extras
 
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s;%(message)s',
-                    datefmt='%Y.%m.%d %H:%M:%S')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s;%(message)s", datefmt="%Y.%m.%d %H:%M:%S"
+)
 
 camera = PiCamera()
 camera.resolution = (640, 480)
@@ -26,7 +27,7 @@ cursor.execute("SELECT * FROM Employee")
 data = cursor.fetchall()
 encoded_face_train = [pickle.loads(el[4]) for el in data]
 class_names = [el[2] for el in data]
-print(f'LOADING DATA: {perf_counter() - start}')
+print(f"LOADING DATA: {perf_counter() - start}")
 
 
 def worker(procnum, return_dict, resized_image, face):
@@ -45,7 +46,17 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
 
     start = perf_counter()
     for el in enumerate(faces_in_frame):
-        proc = Process(target=worker, args=(el[0], return_dict, resized_image, [el[1], ]))
+        proc = Process(
+            target=worker,
+            args=(
+                el[0],
+                return_dict,
+                resized_image,
+                [
+                    el[1],
+                ],
+            ),
+        )
         procs.append(proc)
         proc.start()
 
@@ -76,14 +87,25 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
             y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
-            cv2.putText(img, person_name, (x1 + 6, y2 - 5), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
+            cv2.putText(
+                img,
+                person_name,
+                (x1 + 6, y2 - 5),
+                cv2.FONT_HERSHEY_COMPLEX,
+                1,
+                (255, 255, 255),
+                2,
+            )
         bulk_records.append((name, 1))
-    psycopg2.extras.execute_batch(cursor, """INSERT INTO LOG(employee_id, status) VALUES(%s, CAST(%s AS BIT))""",
-                                  bulk_records)
+    psycopg2.extras.execute_batch(
+        cursor,
+        """INSERT INTO LOG(employee_id, status) VALUES(%s, CAST(%s AS BIT))""",
+        bulk_records,
+    )
     conn.commit()
     finish_foo = perf_counter()
     print(f"WHOLE EPOCH: {finish_foo - start_foo}")
-    cv2.imshow('Frame', img)
+    cv2.imshow("Frame", img)
     raw_capture.truncate(0)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord("q"):
         break
