@@ -1,32 +1,36 @@
-import json
 import os
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from time import perf_counter
 import face_recognition
-
 import cv2
+import psycopg2.extras
+import pickle
+from db.config import conn, cursor
 
-path = 'imgs'
+path = "static"
 
 images = []
-class_names = []
-staff_list = os.listdir(path)
 
 
 def append_img(img):
-    cur_img = cv2.imread(f'{path}/{img}')
-    images.append(cv2.cvtColor(cur_img, cv2.COLOR_BGR2RGB))
-    class_names.append(os.path.splitext(img)[0])
+    cur_img = cv2.imread(f"{path}/{img}")
+    images.append(
+        [
+            cv2.cvtColor(cur_img, cv2.COLOR_BGR2RGB),
+            os.path.splitext(img)[0],
+            f"{path}/{img}",
+        ]
+    )
 
 
 def find_encodings(img):
-    return face_recognition.face_encodings(img)[0]
+    return face_recognition.face_encodings(img[0])[0]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = perf_counter()
     with ThreadPoolExecutor() as executor:
-        executor.map(append_img, staff_list)
+        executor.map(append_img, os.listdir(path))
     finish = perf_counter()
 
     print(f"Append_img: {finish - start}")
@@ -36,9 +40,21 @@ if __name__ == '__main__':
         encoded_face_train = list(executor.map(find_encodings, images))
     finish = perf_counter()
     print(f"find_encodings: {finish - start}")
-    dict_ = {
-        'class_names': class_names,
-        'encoded_face_train': encoded_face_train
-    }
-    with open("data.json", 'w') as data:
-        data.write(dumps(dict_, indent=4))
+    bulk_records = [
+        (
+            el[1].split()[0],
+            el[1].split()[1],
+            el[2],
+            pickle.dumps(encoded_face_train[index]),
+        )
+        for index, el in enumerate(images)
+    ]
+    try:
+        psycopg2.extras.execute_batch(
+            cursor,
+            """INSERT INTO EMPLOYEE(first_name, last_name, img_path, encoded_img) VALUES(%s, %s, %s, %s);""",
+            bulk_records,
+        )
+        conn.commit()
+    except Exception as err:
+        print(err)
