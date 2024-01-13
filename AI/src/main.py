@@ -6,7 +6,7 @@ import face_recognition
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 from time import perf_counter, sleep
-from db.config import conn, cursor
+from AI.db.config import conn, cursor
 import pickle
 import psycopg2.extras
 
@@ -27,7 +27,7 @@ cursor.execute("SELECT * FROM Employee")
 data = cursor.fetchall()
 encoded_face_train = [pickle.loads(el[4]) for el in data]
 class_names = [el[2] for el in data]
-print(f"LOADING DATA: {perf_counter() - start}")
+logging.info(f"LOADING DATA: {perf_counter() - start}")
 
 
 def worker(procnum, return_dict, resized_image, face):
@@ -64,21 +64,21 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
         proc.join()
     finish = perf_counter()
     encoded_faces = [el[1][0] for el in return_dict.items()]
-    print(f"Find_encodings_in_loop: {finish - start} + {len(faces_in_frame)} people")
+    logging.info(f"Find_encodings_in_loop: {finish - start} + {len(faces_in_frame)} people")
     bulk_records = []
     for encoded_face, faceloc in zip(encoded_faces, faces_in_frame):
         start = perf_counter()
         matches = face_recognition.compare_faces(encoded_face_train, encoded_face)
         finish = perf_counter()
-        print(f"Compare_faces: {finish - start}")
+        logging.info(f"Compare_faces: {finish - start}")
         start = perf_counter()
         face_dist = face_recognition.face_distance(encoded_face_train, encoded_face)
         finish = perf_counter()
-        print(f"Face_distance: {finish - start}")
+        logging.info(f"Face_distance: {finish - start}")
         start = perf_counter()
         match_index = np.argmin(face_dist)
         finish = perf_counter()
-        print(f"Argmin: {finish - start}")
+        logging.info(f"Argmin: {finish - start}")
         name = None
         if matches[match_index]:
             name = data[match_index][0]
@@ -96,15 +96,15 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
                 (255, 255, 255),
                 2,
             )
-        bulk_records.append((name, 1))
+        bulk_records.append((name, True))
     psycopg2.extras.execute_batch(
         cursor,
-        """INSERT INTO LOG(employee_id, status) VALUES(%s, CAST(%s AS BIT))""",
+        """INSERT INTO LOG(employee_id, last_seen, status) VALUES(%s, CURRENT_TIMESTAMP, CAST(%s AS BOOLEAN))""",
         bulk_records,
     )
     conn.commit()
     finish_foo = perf_counter()
-    print(f"WHOLE EPOCH: {finish_foo - start_foo}")
+    logging.info(f"WHOLE EPOCH: {finish_foo - start_foo}")
     cv2.imshow("Frame", img)
     raw_capture.truncate(0)
     if cv2.waitKey(1) & 0xFF == ord("q"):

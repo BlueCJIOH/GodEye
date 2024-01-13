@@ -5,7 +5,8 @@ import face_recognition
 import cv2
 import psycopg2.extras
 import pickle
-from db.config import conn, cursor
+
+from AI.db.config import cursor, conn
 
 path = "static"
 
