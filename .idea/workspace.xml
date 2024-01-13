@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="3a3d461b-d109-4c01-925a-ff9b3c609580" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/godeye/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/godeye/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/godeye/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/manage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/godeye/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/API/godeye/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AI/.idea/AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/AI/.idea/AI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AI/db/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AI/src/loading_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/AI/src/loading_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AI/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/AI/src/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +44,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/WORK/GodEye",
+    "last_opened_file_path": "C:/Users/lukia/Downloads/loading_data.py",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -76,7 +76,13 @@
       <workItem from="1701935844350" duration="310000" />
       <workItem from="1701936337223" duration="7315000" />
       <workItem from="1702024383450" duration="549000" />
-      <workItem from="1702122585797" duration="6790000" />
+      <workItem from="1702122585797" duration="6961000" />
+      <workItem from="1702455507341" duration="36000" />
+      <workItem from="1704362439374" duration="6000" />
+      <workItem from="1704362461416" duration="11000" />
+      <workItem from="1704375335667" duration="412000" />
+      <workItem from="1704377472452" duration="377000" />
+      <workItem from="1705137381024" duration="204000" />
     </task>
     <servers />
   </component>
