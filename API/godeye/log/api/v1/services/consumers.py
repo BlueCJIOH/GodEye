@@ -29,11 +29,11 @@ class LogConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         await self.channel_layer.group_send(
             self.room_group_name,
-            {"type": "log_message", "date_from": text_data_json['date_from'], "date_to": text_data_json["date_to"]},
+            {"type": "log_message", "frame_date": text_data_json["frame_date"]},
         )
 
     async def log_message(self, event):
-        logs = await self.get_logs(event['date_from'], event['date_to'])
+        logs = await self.get_logs(event["frame_date"])
         await self.send(
             json.dumps(
                 {
@@ -43,8 +43,8 @@ class LogConsumer(AsyncWebsocketConsumer):
         )
 
     @database_sync_to_async
-    def get_logs(self, date_from, date_to) -> dict:
+    def get_logs(self, frame_date) -> dict:
         return LogSerializer(
-            Log.objects.filter(last_seen__range=(date_from, date_to)),
+            Log.objects.filter(last_seen=frame_date),
             many=True,
         ).data
