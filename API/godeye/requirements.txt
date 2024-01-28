@@ -1,3 +1,4 @@
+cryptography==3.4.6
 django==4.1.2
 djangorestframework==3.14.0
 django-filter==23.5
@@ -10,4 +11,4 @@ channels==4.0.0
 channels-redis==4.0.0
 redis==4.5.2
 ninja==1.11.1.1
-numpy==1.20.0
+numpy==1.26.3
