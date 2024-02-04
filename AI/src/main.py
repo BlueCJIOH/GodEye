@@ -41,7 +41,7 @@ def start_worker(procnum, return_dict, resized_image, face):
 
 async def send_message():
     async with aiohttp.ClientSession() as session:
-        url = "http://localhost:8000/auth/signin/"
+        url = f"http://{os.environ.get('HOST')}/auth/signin/"
         response = await session.post(
             url,
             headers={"Content-Type": "application/json"},
@@ -55,7 +55,9 @@ async def send_message():
         if response.status == 200:
             user_data = await response.json()
             access_token = user_data["access"]
-            ws_url = f"ws://localhost:8000/ws/log/?access_token={access_token}"
+            ws_url = (
+                f"ws://{os.environ.get('HOST')}/ws/log/?access_token={access_token}"
+            )
 
             async with websockets.connect(ws_url, ping_interval=None) as websocket:
                 for frame in camera.capture_continuous(
@@ -147,6 +149,8 @@ async def send_message():
                     if faces_in_frame:
                         message = {"frame_date": f"{frame_date}"}
                         await websocket.send(json.dumps(message))
+
+                    await asyncio.sleep(0.001)
         else:
             raise ValueError("Failed to establish connection with the server")
 
