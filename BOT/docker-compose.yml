@@ -1,0 +1,17 @@
+services:
+
+  bot:
+    image: "godeye-bot"
+    restart: always
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - godeye_net
+    container_name: "godeye-bot"
+    env_file:
+      - ../.env
+
+networks:
+  godeye_net:
+    name: godeye-network

@@ -5,6 +5,8 @@ services:
     image: redis
     container_name: godeye-redis
     restart: on-failure
+    networks:
+      - godeye_net
     ports:
       - "6379:6379"
 
@@ -14,6 +16,8 @@ services:
     env_file:
       - ../../.env
     restart: always
+    networks:
+      - godeye_net
     volumes:
       - .:/app
     ports:
@@ -27,6 +31,12 @@ services:
     env_file:
       - ../../.env
     image: postgres:12
+    networks:
+      - godeye_net
     restart: always
     ports:
       - "5433:5432"
+
+networks:
+  godeye_net:
+    name: godeye-network
