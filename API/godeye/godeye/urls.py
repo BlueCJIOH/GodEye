@@ -9,6 +9,7 @@ urlpatterns = [
     path("", include("employee.urls")),
     path("", include("log.urls")),
     path("", include("authorization.urls")),
+    path("", include("health.urls")),
 ]
 
 urlpatterns += doc_urls

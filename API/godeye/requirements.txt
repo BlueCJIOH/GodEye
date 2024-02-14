@@ -12,3 +12,4 @@ channels-redis==4.0.0
 redis==4.5.2
 ninja==1.11.1.1
 numpy==1.26.3
+requests==2.31.0
