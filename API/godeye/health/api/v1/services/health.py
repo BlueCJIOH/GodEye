@@ -6,7 +6,7 @@ from channels_redis.core import RedisChannelLayer
 
 from godeye.settings import CHANNEL_LAYERS, DATABASES
 
-logger = logging.getLogger('main')
+logger = logging.getLogger("main")
 
 
 def check_db_health():
@@ -16,13 +16,15 @@ def check_db_health():
             user=f'{DATABASES["default"]["USER"]}',
             password=f'{DATABASES["default"]["PASSWORD"]}',
             host=f'{DATABASES["default"]["HOST"]}',
-            port=f'{DATABASES["default"]["PORT"]}'
+            port=f'{DATABASES["default"]["PORT"]}',
         )
         cursor = conn.cursor()
-        cursor.execute("""SELECT table_name
+        cursor.execute(
+            """SELECT table_name
                             FROM information_schema.tables
                            WHERE table_schema = 'public'
-                       """)
+                       """
+        )
         result = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -34,22 +36,20 @@ def check_db_health():
 
 
 def check_redis_health():
-    host = CHANNEL_LAYERS['default']['CONFIG']['hosts']
+    host = CHANNEL_LAYERS["default"]["CONFIG"]["hosts"]
     try:
-        channel_layer = RedisChannelLayer(
-            hosts=host
-        )
+        channel_layer = RedisChannelLayer(hosts=host)
         channel_name = async_to_sync(channel_layer.new_channel)()
         async_to_sync(channel_layer.send)(
             channel_name,
             {
                 "type": "test.message",
-                "text": "The redis channel connection was successfully established."
-            }
+                "text": "The redis channel connection was successfully established.",
+            },
         )
         message = async_to_sync(channel_layer.receive)(channel_name)
-        logger.info(message['text'])
-        return message['text']
+        logger.info(message["text"])
+        return message["text"]
     except:
         logger.critical("Failed to connect to the redis channel!")
         return "Failed to connect to the redis channel!"

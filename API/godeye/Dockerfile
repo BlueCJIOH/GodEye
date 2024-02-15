@@ -12,5 +12,5 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade pip && pip 
 
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-CMD psql -h 192.168.100.10 -d "facerecognition" -U "admin" -p "5432"
+CMD psql -h $POSTGRES_HOST -d $POSTGRES_NAME -U $POSTGRES_USER -p $POSTGRES_PORT
 CMD "/entrypoint.sh"

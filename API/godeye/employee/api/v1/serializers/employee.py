@@ -1,9 +1,10 @@
 import logging
 import pickle
-import cv2
+
+import numpy
+from PIL import Image
 import face_recognition
 from django.core.files.storage import default_storage
-
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
@@ -38,22 +39,25 @@ class EmployeeCreateSerializer(ModelSerializer):
     class Meta:
         model = Employee
         fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'img_path',
-            'encoded_img',
-            'name',
-            'img',
+            "id",
+            "first_name",
+            "last_name",
+            "img_path",
+            "encoded_img",
+            "name",
+            "img",
         )
-        read_only_fields = ('id', 'first_name', 'last_name', 'img_path', 'encoded_img')
+        read_only_fields = ("id", "first_name", "last_name", "img_path", "encoded_img")
 
     def create(self, validated_data):
         try:
-            first_name, last_name = validated_data.get('name', validated_data.get('img').name.split('.')[0]).split()
-            img_path = default_storage.save(f'{validated_data.get("img").name}', validated_data.get('img'))
-            img = cv2.cvtColor(cv2.imread(f'media/{img_path}'), cv2.COLOR_BGR2RGB)
-            encoded_img = pickle.dumps(face_recognition.face_encodings(img)[0])
+            file_name, file_type = validated_data["img"].name.split(".")
+            first_name, last_name = validated_data.get("name", file_name).split()
+            img_path = default_storage.save(
+                f'{" ".join((first_name, last_name))}.{file_type}',
+                validated_data.get("img"),
+            )
+            encoded_img = pickle.dumps(face_recognition.face_encodings(numpy.array(Image.open(f'media/{img_path}')))[0])
             instance = Employee.objects.create(
                 first_name=first_name,
                 last_name=last_name,
@@ -65,5 +69,3 @@ class EmployeeCreateSerializer(ModelSerializer):
             ).data
         except Exception as err:
             logging.critical(err)
-
-
