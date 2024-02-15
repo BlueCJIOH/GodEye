@@ -1,7 +1,6 @@
 import datetime
 
 from django.db.models import Count, Min, F, Max
-from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,7 +11,7 @@ from employee.api.v1.filters.employee import EmployeeFilter
 from employee.api.v1.serializers.employee import (
     EmployeeSerializer,
     EmployeeFilterSerializer,
-    EmployeeStatsSerializer, EmployeeCreateSerializer,
+    EmployeeStatsSerializer,
 )
 from employee.models import Employee
 
@@ -26,12 +25,6 @@ class EmployeeViewSet(ModelViewSet):
         "delete",
         "post",
     )
-
-    def create(self, request, *args, **kwargs):
-        serializer = EmployeeCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.instance, status=status.HTTP_201_CREATED)
 
     @action(
         detail=False,
