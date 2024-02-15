@@ -8,7 +8,7 @@ import pickle
 
 from AI.db.config import cursor, conn
 
-path = "static"
+path = "/home/admin/GodEye/API/godeye/media"
 
 images = []
 
@@ -19,7 +19,7 @@ def append_img(img):
         [
             cv2.cvtColor(cur_img, cv2.COLOR_BGR2RGB),
             os.path.splitext(img)[0],
-            f"{path}/{img}",
+            f"{img}",
         ]
     )
 
