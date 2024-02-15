@@ -8,7 +8,7 @@ import pickle
 
 from AI.db.config import cursor, conn
 
-path = "/home/admin/GodEye/API/godeye/media"
+path = os.environ.get('MEDIA_PATH')
 
 images = []
 
