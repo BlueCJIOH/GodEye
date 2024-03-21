@@ -1,5 +1,7 @@
 import datetime
+import logging
 
+from django.core.files.storage import default_storage
 from django.db.models import Count, Min, F, Max
 from rest_framework import status
 from rest_framework.decorators import action
@@ -12,7 +14,8 @@ from employee.api.v1.filters.employee import EmployeeFilter
 from employee.api.v1.serializers.employee import (
     EmployeeSerializer,
     EmployeeFilterSerializer,
-    EmployeeStatsSerializer, EmployeeCreateSerializer,
+    EmployeeStatsSerializer,
+    EmployeeCreateSerializer,
 )
 from employee.models import Employee
 
