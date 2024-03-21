@@ -7,7 +7,7 @@ ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 WORKDIR /app
 COPY . /app
 
-RUN --mount=type=cache,target=/var/cache/apt apt-get update -y && apt-get install -y build-essential cmake libgl1
+RUN --mount=type=cache,target=/var/cache/apt apt-get update -y && apt-get install -y build-essential libgl1
 RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade pip && pip install -r requirements.txt
 
 ADD entrypoint.sh /entrypoint.sh

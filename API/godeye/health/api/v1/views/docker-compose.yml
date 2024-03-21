@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis
+    container_name: godeye-redis
+    restart: on-failure
+    networks:
+      - godeye_net
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    container_name: godeye-web
+    env_file:
+      - ../../.env
+    restart: always
+    networks:
+      - godeye_net
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    container_name: godeye-db
+    env_file:
+      - ../../.env
+    image: postgres:12
+    networks:
+      - godeye_net
+    restart: always
+    ports:
+      - "5433:5432"
+
+networks:
+  godeye_net:
+    name: godeye-network
