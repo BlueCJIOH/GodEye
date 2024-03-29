@@ -1,4 +1,5 @@
 import logging
+import os
 import pickle
 
 import numpy
@@ -49,20 +50,30 @@ class EmployeeCreateSerializer(ModelSerializer):
         )
         read_only_fields = ("id", "first_name", "last_name", "img_path", "encoded_img")
 
+    def validate(self, data):
+        try:
+            file_name, file_type = data["img"].name.split(".")
+            data['first_name'], data['last_name'] = data.get("name", file_name).split()
+            data['img_path'] = default_storage.save(
+                f"{' '.join((data['first_name'], data['last_name']))}.{file_type}",
+                data.get("img"),
+            )
+            try:
+                data['img'] = pickle.dumps(face_recognition.face_encodings(numpy.array(Image.open(f"media/{data['img_path']}")))[0])
+                return data
+            except IndexError:
+                os.remove(f"media/{data['img_path']}")
+                raise serializers.ValidationError("Not valid photo. Bad request")
+        except ValueError:
+            raise serializers.ValidationError("Not valid data of the Employee object")
+
     def create(self, validated_data):
         try:
-            file_name, file_type = validated_data["img"].name.split(".")
-            first_name, last_name = validated_data.get("name", file_name).split()
-            img_path = default_storage.save(
-                f'{" ".join((first_name, last_name))}.{file_type}',
-                validated_data.get("img"),
-            )
-            encoded_img = pickle.dumps(face_recognition.face_encodings(numpy.array(Image.open(f'media/{img_path}')))[0])
             instance = Employee.objects.create(
-                first_name=first_name,
-                last_name=last_name,
-                img_path=img_path,
-                encoded_img=encoded_img,
+                first_name=validated_data['first_name'],
+                last_name=validated_data['last_name'],
+                img_path=validated_data['img_path'],
+                encoded_img=validated_data['img'],
             )
             return EmployeeSerializer(
                 instance=instance
