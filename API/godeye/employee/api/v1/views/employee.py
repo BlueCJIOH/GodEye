@@ -1,7 +1,5 @@
 import datetime
-import logging
 
-from django.core.files.storage import default_storage
 from django.db.models import Count, Min, F, Max
 from rest_framework import status
 from rest_framework.decorators import action
@@ -34,6 +32,8 @@ class EmployeeViewSet(ModelViewSet):
         serializer = EmployeeCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        if serializer.errors:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.instance, status=status.HTTP_201_CREATED)
 
     @action(
