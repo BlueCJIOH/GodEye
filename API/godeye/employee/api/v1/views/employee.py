@@ -9,6 +9,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
 from rest_framework.viewsets import ModelViewSet
 
 from employee.api.v1.filters.employee import EmployeeFilter
+from employee.api.v1.paginators.employee import EmployeePaginator
 from employee.api.v1.serializers.employee import (
     EmployeeSerializer,
     EmployeeFilterSerializer,
@@ -22,6 +23,7 @@ class EmployeeViewSet(ModelViewSet):
     serializer_class = EmployeeSerializer
     queryset = Employee.objects.all()
     permission_classes = (IsAuthenticated,)
+    pagination_class = EmployeePaginator
     http_method_names = (
         "get",
         "delete",
