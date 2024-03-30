@@ -67,7 +67,7 @@ async def start_creating_employee(msg: Message) -> None:
         await EmployeeStatesGroup.first()
         await msg.bot.send_message(
             chat_id=Env.CHAT_ID,
-            text=f'Отравьте фотографию лица сотрудника и введите название, которое должно соответствовать формату — "Имя Фамилия".',
+            text=f'Отправьте фотографию лица сотрудника и введите название, которое должно соответствовать формату — "Имя Фамилия".',
             parse_mode="Markdown",
         )
     except Exception as e:
@@ -116,12 +116,121 @@ async def add_employee(msg: Message, state: FSMContext) -> None:
                     await msg.bot.send_message(
                         chat_id=Env.CHAT_ID,
                         text=f"Отправьте фотографию заново и убедитесь в следующем:\n"
-                             f"‼ фотография хорошего качества и содержит лицо человека;\n"
-                             f'‼ надпись к фотографии — "Имя Фамилия"',
+                        f"‼ фотография хорошего качества и содержит лицо человека;\n"
+                        f'‼ надпись к фотографии — "Имя Фамилия"',
                         parse_mode="Markdown",
                     )
                     logging.error("Not valid photo!")
                     return
+    except Exception as e:
+        await state.finish()
+        await msg.bot.send_message(
+            chat_id=Env.CHAT_ID,
+            text=f"Что-то пошло не так! Пожалуйста, попробуйте перезагрузить камеру или обратитесь в тех. поддержку!",
+            parse_mode="Markdown",
+        )
+        logging.error(e)
+
+
+async def delete_employee(msg: Message, state: FSMContext) -> None:
+    try:
+        async with aiohttp.ClientSession() as session:
+            url = "http://web:8000/auth/signin/"
+            response = await session.post(
+                url,
+                headers={"Content-Type": "application/json"},
+                data=json.dumps({"username": Env.TG_NAME, "password": Env.TG_PWD}),
+            )
+            if response.status == 200:
+                data = await response.json()
+                access_token = data["access"]
+                url = f"http://web:8000/employee/{int(msg.text)}"
+                response = await session.delete(
+                    url, headers={"Authorization": f"Bearer {access_token}"}
+                )
+                if response.status == 204:
+                    await state.finish()
+                    await msg.bot.send_message(
+                        chat_id=Env.CHAT_ID,
+                        text="Сотрудник был успешно удален из базы данных!",
+                        parse_mode="Markdown",
+                    )
+                    return
+                await msg.bot.send_message(
+                    chat_id=Env.CHAT_ID,
+                    text="Не удалось удалить сотрудника, пожалуйста, проверьте корректность введенного кода и попробуйте заново!",
+                    parse_mode="Markdown",
+                )
+    except Exception as e:
+        await state.finish()
+        await msg.bot.send_message(
+            chat_id=Env.CHAT_ID,
+            text=f"Что-то пошло не так! Пожалуйста, попробуйте перезагрузить камеру или обратитесь в тех. поддержку!",
+            parse_mode="Markdown",
+        )
+        logging.error(e)
+
+
+async def start_deleting_employee(msg: Message) -> None:
+    try:
+        await EmployeeStatesGroup.delete.set()
+        await msg.bot.send_message(
+            chat_id=Env.CHAT_ID,
+            text=f"Отправьте код существующего сотрудника, чтобы удалить его из базы данных.",
+            parse_mode="Markdown",
+        )
+    except Exception as e:
+        logging.error(e)
+
+
+async def start_listing_employee(msg: Message) -> None:
+    try:
+        await EmployeeStatesGroup.list.set()
+        await msg.bot.send_message(
+            chat_id=Env.CHAT_ID,
+            text=f"Отправьте номер страницы списка, чтобы увидеть существующих сотрудников.",
+            parse_mode="Markdown",
+        )
+    except Exception as e:
+        logging.error(e)
+
+
+async def list_employee(msg: Message, state: FSMContext) -> None:
+    try:
+        async with aiohttp.ClientSession() as session:
+            url = "http://web:8000/auth/signin/"
+            response = await session.post(
+                url,
+                headers={"Content-Type": "application/json"},
+                data=json.dumps({"username": Env.TG_NAME, "password": Env.TG_PWD}),
+            )
+            if response.status == 200:
+                data = await response.json()
+                access_token = data["access"]
+                url = f"http://web:8000/employee/?page={int(msg.text)}"
+                response = await session.get(
+                    url, headers={"Authorization": f"Bearer {access_token}"}
+                )
+                if response.status == 200:
+                    await state.finish()
+                    content = await response.json()
+                    text = ""
+                    for el in content["results"]:
+                        text += (
+                            f"Код: {el['id']}\n"
+                            f"Имя Фамилия: {el['first_name']} {el['last_name']}\n\n"
+                        )
+                    await msg.bot.send_message(
+                        chat_id=Env.CHAT_ID,
+                        text=text,
+                        parse_mode="Markdown",
+                    )
+                    return
+                await msg.bot.send_message(
+                    chat_id=Env.CHAT_ID,
+                    text="Не удалось получить список сотрудников, пожалуйста, проверьте корректность введенного номера страницы и попробуйте заново!",
+                    parse_mode="Markdown",
+                )
     except Exception as e:
         await state.finish()
         await msg.bot.send_message(
@@ -142,5 +251,21 @@ def register_cmd_handlers(dp: Dispatcher):
         state=EmployeeStatesGroup.img,
         content_types=[
             "photo",
+        ],
+    )
+    dp.register_message_handler(start_deleting_employee, commands="delete", state=None)
+    dp.register_message_handler(
+        delete_employee,
+        state=EmployeeStatesGroup.delete,
+        content_types=[
+            "text",
+        ],
+    )
+    dp.register_message_handler(start_listing_employee, commands="list", state=None)
+    dp.register_message_handler(
+        list_employee,
+        state=EmployeeStatesGroup.list,
+        content_types=[
+            "text",
         ],
     )
