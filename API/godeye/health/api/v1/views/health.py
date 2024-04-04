@@ -1,4 +1,3 @@
-
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,6 +12,6 @@ class HealthViewSet(GenericViewSet):
     def get_health(self, request):
         return Response(data={"db": check_db_health(), "redis": check_redis_health()})
 
-    @action(methods=['post'], detail=False, url_path='reboot')
+    @action(methods=["post"], detail=False, url_path="reboot")
     def reboot(self, request):
         pass
