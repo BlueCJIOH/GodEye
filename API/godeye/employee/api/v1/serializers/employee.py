@@ -53,13 +53,17 @@ class EmployeeCreateSerializer(ModelSerializer):
     def validate(self, data):
         try:
             file_name, file_type = data["img"].name.split(".")
-            data['first_name'], data['last_name'] = data.get("name", file_name).split()
-            data['img_path'] = default_storage.save(
+            data["first_name"], data["last_name"] = data.get("name", file_name).split()
+            data["img_path"] = default_storage.save(
                 f"{' '.join((data['first_name'], data['last_name']))}.{file_type}",
                 data.get("img"),
             )
             try:
-                data['img'] = pickle.dumps(face_recognition.face_encodings(numpy.array(Image.open(f"media/{data['img_path']}")))[0])
+                data["img"] = pickle.dumps(
+                    face_recognition.face_encodings(
+                        numpy.array(Image.open(f"media/{data['img_path']}"))
+                    )[0]
+                )
                 return data
             except IndexError:
                 os.remove(f"media/{data['img_path']}")
@@ -70,13 +74,11 @@ class EmployeeCreateSerializer(ModelSerializer):
     def create(self, validated_data):
         try:
             instance = Employee.objects.create(
-                first_name=validated_data['first_name'],
-                last_name=validated_data['last_name'],
-                img_path=validated_data['img_path'],
-                encoded_img=validated_data['img'],
+                first_name=validated_data["first_name"],
+                last_name=validated_data["last_name"],
+                img_path=validated_data["img_path"],
+                encoded_img=validated_data["img"],
             )
-            return EmployeeSerializer(
-                instance=instance
-            ).data
+            return EmployeeSerializer(instance=instance).data
         except Exception as err:
             logging.critical(err)
