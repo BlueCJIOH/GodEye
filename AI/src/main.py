@@ -31,24 +31,40 @@ def setup_GPIO():
         logging.info("ENDED SETUP GPIO")
         return TRIGGER, ECHO
     except Exception as e:
-        logging.error(f"CHECKING DISTANCE: {e}")
+        logging.error(f"SETUP GPIO: {e}")
 
 
 def ultrasonic_detection(TRIGGER, ECHO):
     try:
-        GPIO.output(TRIGGER, GPIO.HIGH)
-        sleep(0.00001)
         GPIO.output(TRIGGER, GPIO.LOW)
+        time.sleep(0.1)
+        GPIO.output(TRIGGER, GPIO.HIGH)
+        time.sleep(0.00001)
+        GPIO.output(TRIGGER, GPIO.LOW)
+
+        freeze = 0
+        pulse_start = time.time()
+        pulse_end = time.time()
         start = time.time()
-        end = time.time()
-        while GPIO.input(ECHO) == 0:
-            if time.time() - start > 0.1:
+
+        while GPIO.input(ECHO) == GPIO.LOW:
+            pulse_start = time.time()
+            if pulse_start - start > 0.1:
+                freeze = 1
                 break
-            start = time.time()
-        while GPIO.input(ECHO) == 1:
-            end = time.time()
-        signal_duration = end - start
-        distance = round(signal_duration * 17150, 2)
+
+        while GPIO.input(ECHO) == GPIO.HIGH:
+            pulse_end = time.time()
+
+        pulse_duration = pulse_end - pulse_start
+        distance = pulse_duration * 17160.5
+
+        if freeze == 0:
+            distance = round(distance, 2)
+        else:
+            distance = 11
+        logging.info("Spotted movement in the distance: ", distance, "cm from sensor.")
+
         return distance
     except Exception as e:
         logging.error(f"ULTRASONIC DETECTING: {e}")
@@ -58,126 +74,104 @@ def start_worker(procnum, return_dict, resized_image, face):
     return_dict[procnum] = face_recognition.face_encodings(resized_image, face)
 
 
-async def send_message(camera, raw_capture, data, encoded_face_train, class_names):
-    async with aiohttp.ClientSession() as session:
-        url = f"http://{os.environ.get('HOST')}/auth/signin/"
-        response = await session.post(
-            url,
-            headers={"Content-Type": "application/json"},
-            data=json.dumps(
-                {
-                    "username": f"{os.environ.get('MODERATOR_NAME')}",
-                    "password": f"{os.environ.get('MODERATOR_PWD')}",
-                }
-            ),
-        )
-        if response.status == 200:
-            user_data = await response.json()
-            access_token = user_data["access"]
-            ws_url = (
-                f"ws://{os.environ.get('HOST')}/ws/log/?access_token={access_token}"
+async def send_message(websocket, camera, raw_capture, data, encoded_face_train, class_names):
+    logging.info("START SHOOTING")
+    for frame in camera.capture_continuous(
+            raw_capture, format="bgr", use_video_port=True, resize=(640, 480)
+    ):
+        frame_date = datetime.datetime.now()
+        start_foo = perf_counter()
+        img = frame.array
+        resized_image = cv2.resize(img, (0, 0), None, 0.25, 0.25)
+        faces_in_frame = face_recognition.face_locations(resized_image)
+        logging.info(f"FACES IN FRAME {len(faces_in_frame)}")
+
+        manager = Manager()
+        return_dict = manager.dict()
+        procs = []
+
+        start = perf_counter()
+        for el in enumerate(faces_in_frame):
+            proc = Process(
+                target=start_worker,
+                args=(
+                    el[0],
+                    return_dict,
+                    resized_image,
+                    [
+                        el[1],
+                    ],
+                ),
             )
+            procs.append(proc)
+            proc.start()
 
-            async with websockets.connect(ws_url, ping_interval=None) as websocket:
-                logging.info("START SHOOTING")
-                for frame in camera.capture_continuous(
-                    raw_capture, format="bgr", use_video_port=True, resize=(640, 480)
-                ):
-                    frame_date = datetime.datetime.now()
-                    start_foo = perf_counter()
-                    img = frame.array
-                    resized_image = cv2.resize(img, (0, 0), None, 0.25, 0.25)
-                    faces_in_frame = face_recognition.face_locations(resized_image)
-                    logging.info(f"FACES IN FRAME {len(faces_in_frame)}")
+        for proc in procs:
+            proc.join()
 
-                    manager = Manager()
-                    return_dict = manager.dict()
-                    procs = []
+        finish = perf_counter()
 
-                    start = perf_counter()
-                    for el in enumerate(faces_in_frame):
-                        proc = Process(
-                            target=start_worker,
-                            args=(
-                                el[0],
-                                return_dict,
-                                resized_image,
-                                [
-                                    el[1],
-                                ],
-                            ),
-                        )
-                        procs.append(proc)
-                        proc.start()
+        encoded_faces = [el[1][0] for el in return_dict.items()]
+        logging.info(
+            f"Find_encodings_in_loop: {finish - start} + {len(faces_in_frame)} people"
+        )
 
-                    for proc in procs:
-                        proc.join()
+        bulk_records = []
+        for encoded_face, faceloc in zip(encoded_faces, faces_in_frame):
+            start = perf_counter()
+            matches = face_recognition.compare_faces(
+                encoded_face_train, encoded_face
+            )
+            finish = perf_counter()
+            logging.info(f"Compare_faces: {finish - start}")
+            start = perf_counter()
+            face_dist = face_recognition.face_distance(
+                encoded_face_train, encoded_face
+            )
+            finish = perf_counter()
+            logging.info(f"Face_distance: {finish - start}")
+            start = perf_counter()
+            match_index = np.argmin(face_dist)
+            finish = perf_counter()
+            logging.info(f"Argmin: {finish - start}")
+            name = None
+            if matches[match_index]:
+                name = data[match_index][0]
+                person_name = class_names[match_index].upper().lower()
+                y1, x2, y2, x1 = faceloc
+                y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.rectangle(
+                    img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED
+                )
+                cv2.putText(
+                    img,
+                    person_name,
+                    (x1 + 6, y2 - 5),
+                    cv2.FONT_HERSHEY_COMPLEX,
+                    1,
+                    (255, 255, 255),
+                    2,
+                )
+                logging.info(f"DETECTED {person_name}")
+            bulk_records.append((name, frame_date, True))
+        psycopg2.extras.execute_batch(
+            cursor,
+            """INSERT INTO LOG(employee_id, last_seen, status) VALUES(%s, CAST(%s AS TIMESTAMP), CAST(%s AS BOOLEAN))""",
+            bulk_records,
+        )
+        conn.commit()
+        finish_foo = perf_counter()
+        logging.info(f"WHOLE EPOCH: {finish_foo - start_foo}")
 
-                    finish = perf_counter()
+        await show_img(img)
+        raw_capture.truncate(0)
 
-                    encoded_faces = [el[1][0] for el in return_dict.items()]
-                    logging.info(
-                        f"Find_encodings_in_loop: {finish - start} + {len(faces_in_frame)} people"
-                    )
+        if faces_in_frame:
+            message = {"frame_date": f"{frame_date}"}
+            await websocket.send(json.dumps(message))
 
-                    bulk_records = []
-                    for encoded_face, faceloc in zip(encoded_faces, faces_in_frame):
-                        start = perf_counter()
-                        matches = face_recognition.compare_faces(
-                            encoded_face_train, encoded_face
-                        )
-                        finish = perf_counter()
-                        logging.info(f"Compare_faces: {finish - start}")
-                        start = perf_counter()
-                        face_dist = face_recognition.face_distance(
-                            encoded_face_train, encoded_face
-                        )
-                        finish = perf_counter()
-                        logging.info(f"Face_distance: {finish - start}")
-                        start = perf_counter()
-                        match_index = np.argmin(face_dist)
-                        finish = perf_counter()
-                        logging.info(f"Argmin: {finish - start}")
-                        name = None
-                        if matches[match_index]:
-                            name = data[match_index][0]
-                            person_name = class_names[match_index].upper().lower()
-                            y1, x2, y2, x1 = faceloc
-                            y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
-                            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                            cv2.rectangle(
-                                img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED
-                            )
-                            cv2.putText(
-                                img,
-                                person_name,
-                                (x1 + 6, y2 - 5),
-                                cv2.FONT_HERSHEY_COMPLEX,
-                                1,
-                                (255, 255, 255),
-                                2,
-                            )
-                            logging.info(f"DETECTED {person_name}")
-                        bulk_records.append((name, frame_date, True))
-                    psycopg2.extras.execute_batch(
-                        cursor,
-                        """INSERT INTO LOG(employee_id, last_seen, status) VALUES(%s, CAST(%s AS TIMESTAMP), CAST(%s AS BOOLEAN))""",
-                        bulk_records,
-                    )
-                    conn.commit()
-                    finish_foo = perf_counter()
-                    logging.info(f"WHOLE EPOCH: {finish_foo - start_foo}")
-
-                    await show_img(img)
-                    raw_capture.truncate(0)
-
-                    if faces_in_frame:
-                        message = {"frame_date": f"{frame_date}"}
-                        await websocket.send(json.dumps(message))
-
-                    await asyncio.sleep(0.0000001)
-        else:
-            raise ValueError("Failed to establish connection with the server")
+        await asyncio.sleep(0.0001)
 
 
 async def control_display(off=False):
@@ -187,16 +181,23 @@ async def control_display(off=False):
         os.system("vcgencmd display_power 0")
 
 
-async def check_distance(TRIGGER, ECHO):
+async def check_distance(websocket, TRIGGER, ECHO):
     try:
         logging.info("START CHECKING")
+        start = time.time()
         while True:
             distance = ultrasonic_detection(TRIGGER, ECHO)
             logging.info("CHECKING....")
+
+            if time.time() - start >= 20:
+                start = time.time()
+                logging.info('ping sent to the websocket')
+                await websocket.send(json.dumps({"frame_date": "ping"}))
+
             if distance <= 10:
                 await control_display(True)
                 logging.info("obj detected")
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
             else:
                 await control_display()
     except Exception as e:
@@ -229,13 +230,35 @@ async def main():
     logging.info(f"LOADING DATA: {perf_counter() - start}")
 
     TRIGGER, ECHO = setup_GPIO()
-    task1 = asyncio.create_task(check_distance(TRIGGER, ECHO))
-    task2 = asyncio.create_task(
-        send_message(camera, raw_capture, data, encoded_face_train, class_names)
-    )
-    await asyncio.gather(task1, task2)
-    camera.close()
-    GPIO.cleanup()
+    async with aiohttp.ClientSession() as session:
+        url = f"http://{os.environ.get('HOST')}/auth/signin/"
+        response = await session.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(
+                {
+                    "username": f"{os.environ.get('MODERATOR_NAME')}",
+                    "password": f"{os.environ.get('MODERATOR_PWD')}",
+                }
+            ),
+        )
+        if response.status == 200:
+            user_data = await response.json()
+            access_token = user_data["access"]
+            ws_url = (
+                f"ws://{os.environ.get('HOST')}/ws/log/?access_token={access_token}"
+            )
+
+            async with websockets.connect(ws_url, ping_interval=None) as websocket:
+                task1 = asyncio.create_task(check_distance(websocket, TRIGGER, ECHO))
+                task2 = asyncio.create_task(
+                    send_message(websocket, camera, raw_capture, data, encoded_face_train, class_names)
+                )
+                await asyncio.gather(task1, task2)
+                camera.close()
+                GPIO.cleanup()
+        else:
+            raise ValueError("Failed to establish connection with the server")
 
 
 if __name__ == "__main__":
