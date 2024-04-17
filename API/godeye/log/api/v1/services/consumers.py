@@ -27,10 +27,11 @@ class LogConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {"type": "log_message", "frame_date": text_data_json["frame_date"]},
-        )
+        if text_data_json["frame_date"] != "ping":
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {"type": "log_message", "frame_date": text_data_json["frame_date"]},
+            )
 
     async def log_message(self, event):
         logs = await self.get_logs(event["frame_date"])
