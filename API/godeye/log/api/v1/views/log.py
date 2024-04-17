@@ -36,7 +36,7 @@ class LogViewSet(ModelViewSet):
     )
     def search_log(self, request):
         serializer = LogFilterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(rdaise_exception=True)
         queryset = self.get_queryset()
         filterset = LogFilter(data=serializer.data)
         filterset.is_valid()
